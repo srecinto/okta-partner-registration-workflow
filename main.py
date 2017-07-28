@@ -160,8 +160,10 @@ def root():
     if current_token_info["active"]:
         user = get_current_user(current_token_info)
         print "user: {0}".format(user)
-    elif "redirect_url" in current_token_info:
-        return redirect(current_token_info["redirect_url"])
+    # TODO: Figure out how to get a toke from an active okta session without 
+    # doing a redirect
+    # elif "redirect_url" in current_token_info:
+    #    return redirect(current_token_info["redirect_url"])
 
     response = make_response(render_template("index.html", current_token_info=current_token_info, user=user))
     if "token" in request.cookies:

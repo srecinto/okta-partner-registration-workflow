@@ -187,6 +187,12 @@ class OktaUtil:
         body = {}
 
         return self.execute_get(url, body)
+    
+    def get_current_user(self):
+        url = "{host}/api/v1/users/me".format(host=self.REST_HOST)
+        body = {}
+
+        return self.execute_get(url, body)
 
     def get_user_groups(self, user_id):
         print "get_user_groups()"
