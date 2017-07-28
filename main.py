@@ -3,6 +3,7 @@ import config
 
 from flask import Flask, request, send_from_directory, redirect, make_response, render_template
 from utils.rest import OktaUtil
+from utils.db import PartnerDB
 
 """
 GLOBAL VARIABLES ########################################################################################################
@@ -169,6 +170,9 @@ def root():
     if "token" in request.cookies:
         if request.cookies["token"] == "NO_TOKEN":
             response.set_cookie('token', "")
+
+    partner_db = PartnerDB(config.okta["db_file_name"])
+    partner_db.test()
 
     return response
 
