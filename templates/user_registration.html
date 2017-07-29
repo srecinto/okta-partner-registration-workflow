@@ -1,0 +1,38 @@
+{% extends "_template.html" %}
+{% block head %}
+{{ super() }}
+{% endblock %}
+{% block title %}Partner Portal - Registration{% endblock %}
+{% block content %}
+    {% if is_registration_completed %}
+    <div>
+        <div>Your registration has been submitted.  You will recieve an email from an admin about your application.</div>
+        <div>This can take up to several days.</div>
+        <div>
+            <a href="/">Go Back</a>
+        </div>
+    </div>
+    {% else %}
+    <form id='login-form' action="/register" method='post'>
+        <h1>Partner Portal Registration</h1>
+        {% for error in error_list.messages %}
+            <div class="error">{{error.message}}</div>
+        {% endfor %}
+        <input type="text" name="firstName" placeholder="First Name" required>
+        <input type="text" name="lastName" placeholder="Last Name" required>
+        <input type="text" name="email" placeholder="Email" required>
+        <input type="password" name="password" placeholder="Password" required>
+        <input type="password" name="confirmPassword" placeholder="confirm Password" required>
+        <select name="partner" required>
+            <option value="">Choose Your Primary Partner</option>
+            {% for group in partner_groups %}
+            <option value="{{group.id}}">{{group.profile.name}}</option>
+            {% endfor %}
+        </select>
+        <button type='submit'>Register</button>
+        <div>
+            <a href="/">Go Back</a>
+        </div>
+    </form>
+    {% endif %}
+{% endblock %}

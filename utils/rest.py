@@ -17,10 +17,12 @@ class OktaUtil:
     OIDC_CLIENT_ID = None
     OIDC_CLIENT_SECRET = None
     AUTH_SERVER_ID = None
+    CONFIG = None
 
     def __init__(self, headers, okta_config):
         # This is to supress the warnings for the older version
         requests.packages.urllib3.disable_warnings((InsecurePlatformWarning, SNIMissingWarning))
+        self.CONFIG = okta_config
 
         self.REST_HOST = okta_config["org_host"]
         self.REST_TOKEN = okta_config["api_token"]
@@ -187,7 +189,7 @@ class OktaUtil:
         body = {}
 
         return self.execute_get(url, body)
-    
+
     def get_current_user(self):
         url = "{host}/api/v1/users/me".format(host=self.REST_HOST)
         body = {}
@@ -204,6 +206,16 @@ class OktaUtil:
     def list_all_groups(self):
         print "get_user_groups()"
         url = "{host}/api/v1/groups".format(host=self.REST_HOST)
+        body = {}
+
+        return self.execute_get(url, body)
+
+    def search_groups(self, group_name_prefix, limit):
+        print "search_groups()"
+        url = "{host}/api/v1/groups?q={group_name_prefix}&limit={limit}".format(
+            host=self.REST_HOST,
+            group_name_prefix=group_name_prefix,
+            limit=limit)
         body = {}
 
         return self.execute_get(url, body)
@@ -323,6 +335,27 @@ class OktaUtil:
         url = "{host}/api/v1/meta/schemas/user/default".format(host=self.REST_HOST)
         body = {}
         return self.execute_get(url, body)
+
+    def send_mail(self, subject, message, to):
+        print "send_mail()"
+        url = "https://api.sparkpost.com/api/v1/transmissions"
+        headers = {
+            "Authorization": "01b6f437ada7d5adb5493cbc9c5ad813e66497af",
+            "Content-Type": "application/json"
+        }
+        body = {
+            "options": {
+                "sandbox": True
+            },
+            "content": {
+                "from": "sandbox@sparkpostbox.com",
+                "subject": subject,
+                "text": message
+            },
+            "recipients": [{"address": to}]
+        }
+
+        return self.execute_post(url, body, headers=headers)
 
     def execute_post(self, url, body, headers=None):
         print url

@@ -1,47 +1,49 @@
-<html>
-    <head>
-        <title>Partner Portal</title>
-        <link rel="stylesheet" type="text/css" href="css/site.css">
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-        <script type="text/javascript" src="https://allynda.okta.com/api/v1/sessions/me"></script>
-    </head>
-    <body>
+{% extends "_template.html" %}
+{% block head %}
+{{ super() }}
+<script type="text/javascript" src="https://allynda.okta.com/api/v1/sessions/me"></script>
+{% endblock %}
+{% block title %}Partner Portal - Login{% endblock %}
+{% block content %}
+   {% if current_token_info.active %}
+    <div>
+        <h1>Welcome {{user.profile.firstName}} {{user.profile.lastName}}</h1>
+        <div>You are now logged in</div>
+        <div><a href="/logout">Logout</a></div>
+    </div>
+    {% else %}
+    <script type="text/javascript">
+        //<![CDATA[
+        $(document).ready(function() {
 
-        {% if current_token_info.active %}
-        <div>
-            <h1>Welcome {{user.profile.firstName}} {{user.profile.lastName}}</h1>
-            <div>You are now logged in</div>
-            <div><a href="/logout">Logout</a></div>
-        </div>
-        {% else %}
-        <script type="text/javascript">
-            //<![CDATA[
-            $(document).ready(function() {
-                
-                $.get({
-                    url: "https://allynda.okta.com/api/v1/sessions/me", 
-                    xhrFields: { withCredentials: true },
-                    crossDomain: true,
-                    success: data => {
-                        console.log("data: %s", JSON.stringify(data));
-                        var redirectUrl = "{{current_token_info.redirect_url|safe}}";
-                        console.log("redirect_url: %s", redirectUrl)
-                        if(data.id) {
-                            location.href=redirectUrl;
-                        }
+            $.get({
+                url: "https://allynda.okta.com/api/v1/sessions/me",
+                xhrFields: { withCredentials: true },
+                crossDomain: true,
+                success: data => {
+                    console.log("data: %s", JSON.stringify(data));
+                    var redirectUrl = "{{current_token_info.redirect_url|safe}}";
+                    console.log("redirect_url: %s", redirectUrl)
+                    if(data.id) {
+                        location.href=redirectUrl;
                     }
-                });
-                   
+                }
             });
-            //]]>
-        </script>
-        <form id='login-form' action="/login" method='post'>
-            <h1>Partner Portal Login</h1>
-            <input type="text" name="username" placeholder="Username" required>
-            <input type="password" name="password" placeholder="Password" required>
-            <button type='submit'>Login</button>
-        </form>
-        {% endif %}
 
-    </body>
-</html>
+        });
+        //]]>
+    </script>
+    <form id='login-form' action="/login" method='post'>
+        <h1>Partner Portal Login</h1>
+        {% for error in error_list.messages %}
+            <div class="error">{{error.message}}</div>
+        {% endfor %}
+        <input type="text" name="username" placeholder="Username" required>
+        <input type="password" name="password" placeholder="Password" required>
+        <button type='submit'>Login</button>
+        <div>
+            <a href="/user_registration">Register</a>
+        </div>
+    </form>
+    {% endif %}
+{% endblock %}

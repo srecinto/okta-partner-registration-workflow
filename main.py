@@ -66,20 +66,121 @@ def handle_login(form_data):
         return redirect(oidc_auth_code_url)
 
     else:
-        return make_response(redirect("/"))
+        user = None
+        current_token_info = get_current_user_token()
+        error_list = {
+            "messages": [{"message": "Bad user name and/or password"}]
+        }
+        response = make_response(render_template("index.html",
+            current_token_info={},
+            user=user,
+            error_list=error_list
+        ))
+        return response # make_response(redirect("/"))
 
 
 def handle_logout():
     print "handle_logout()"
     redirect_url = "{host}/login/signout?fromURI={redirect_path}".format(
-        host = config.okta["org_host"],
-        redirect_path = config.okta["app_host"]
+        host=config.okta["org_host"],
+        redirect_path=config.okta["app_host"]
     )
 
     print "redirect_url: {0}".format(redirect_url)
 
     response = make_response(redirect(redirect_url))
     response.set_cookie('token', "")
+
+    return response
+
+
+# Checks if form entries are valid
+# Creates the user in Okta
+# Puts a record in the DB Approval Queue
+# Emails the respective group/partner admin for approval
+# Displays the success screen to the end user
+def handle_register(form_data):
+    print "handle_logout()"
+    okta_util = OktaUtil(request.headers, config.okta)
+    is_registration_completed = False
+    partner_groups = okta_util.search_groups(config.okta["partner_group_filter_prefix"], config.okta["group_query_limit"])
+
+    first_name = form_data["firstName"]
+    last_name = form_data["lastName"]
+    email = form_data["email"]
+    password = form_data["password"]
+
+    # Checks if form entries are valid
+    #
+    #
+    #
+    error_list = {
+        "messages": [
+            {"message": "Error message 1"},
+            {"message": "Something about an error message 2"}
+        ]
+    }
+    if False:  #Everything passes
+        is_registration_completed = True
+
+            # Creates the user in Okta
+        user = {
+            "profile": {
+                "lastName": last_name,
+                "firstName": first_name,
+                "email": email,
+                "login": email,
+            },
+            "credentials": {
+                "password": { "value": password }
+            }
+        }
+
+        created_user = okta_util.create_user(user)
+        print "created_user: {0}".format(created_user)
+
+        # Puts a record in the DB Approval Queue
+        # Emails the respective group/partner admin for approval
+        group_name = ""
+        group_id = ""
+        subject = "A User is requesting access to {group_name}".format(group_name=group_name)
+        message = (
+            "A person by the name of {first_name} {last_name} is requesting access to "
+            "the Partner Portal {group_name} <br />"
+            "Click <a href='/admin/partner_approval_queue/{group_id}'>Here</a> to see the approval queue for this Partner"
+        ).format(
+            first_name=first_name,
+            last_name=last_name,
+            group_name=group_name,
+            group_id=group_id
+        )
+
+        admin_email_list = {}
+
+        mail_results = okta_util.send_mail(subject, message, admin_email_list)
+        print "mail_results: {0}".format(mail_results)
+
+
+
+    # Prepare response
+    response = make_response(render_template(
+        "user_registration.html",
+        is_registration_completed=is_registration_completed,
+        partner_groups=partner_groups,
+        error_list=error_list
+    ))
+
+    """
+    activation_url = "{app_host}/{activation_token}".format(
+        app_host=config.okta["app_host"],
+        activation_token=created_user["id"]
+    )
+
+    print "activation_url: {0}".format(activation_url)
+
+    # Email Activation link to user
+
+    """
 
     return response
 
@@ -161,12 +262,16 @@ def root():
     if current_token_info["active"]:
         user = get_current_user(current_token_info)
         print "user: {0}".format(user)
-    # TODO: Figure out how to get a toke from an active okta session without 
-    # doing a redirect
+    # SR: Removed this to allow for client side checking of an Okta session
+    # This will do a full screen redirect
     # elif "redirect_url" in current_token_info:
     #    return redirect(current_token_info["redirect_url"])
 
-    response = make_response(render_template("index.html", current_token_info=current_token_info, user=user))
+    response = make_response(render_template("index.html",
+        current_token_info=current_token_info,
+        user=user,
+        error_list={} # No errors by default
+    ))
     if "token" in request.cookies:
         if request.cookies["token"] == "NO_TOKEN":
             response.set_cookie('token', "")
@@ -211,6 +316,31 @@ def oidc():
     response = make_response(redirect(redirect_url))
     response.set_cookie('token', oauth_token)
     return response
+
+
+@app.route("/user_registration", methods=["GET"])
+def user_registration():
+    print "user_registration()"
+
+    okta_util = OktaUtil(request.headers, config.okta)
+
+    is_registration_completed = False
+    partner_groups = okta_util.search_groups(config.okta["partner_group_filter_prefix"], config.okta["group_query_limit"])
+
+    response = make_response(render_template("user_registration.html",
+        is_registration_completed=is_registration_completed,
+        partner_groups=partner_groups,
+        error_list={} # No errors by default
+    ))
+
+    return response
+
+@app.route("/register", methods=["POST"])
+def register():
+    print "register()"
+    print request.form
+
+    return handle_register(request.form)
 
 
 """
