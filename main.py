@@ -66,17 +66,18 @@ def handle_login(form_data):
         return redirect(oidc_auth_code_url)
 
     else:
-        user = None
-        current_token_info = get_current_user_token()
         error_list = {
             "messages": [{"message": "Bad user name and/or password"}]
         }
-        response = make_response(render_template("index.html",
-            current_token_info={},
-            user=user,
-            error_list=error_list
-        ))
-        return response # make_response(redirect("/"))
+        response = make_response(
+            render_template(
+                "index.html",
+                current_token_info={},
+                user={},
+                error_list=error_list
+            )
+        )
+        return response
 
 
 def handle_logout():
@@ -120,10 +121,10 @@ def handle_register(form_data):
             {"message": "Something about an error message 2"}
         ]
     }
-    if False:  #Everything passes
+    if False:  # Everything passes
         is_registration_completed = True
 
-            # Creates the user in Okta
+        # Creates the user in Okta
         user = {
             "profile": {
                 "lastName": last_name,
@@ -132,7 +133,7 @@ def handle_register(form_data):
                 "login": email,
             },
             "credentials": {
-                "password": { "value": password }
+                "password": {"value": password}
             }
         }
 
@@ -159,8 +160,6 @@ def handle_register(form_data):
 
         mail_results = okta_util.send_mail(subject, message, admin_email_list)
         print "mail_results: {0}".format(mail_results)
-
-
 
     # Prepare response
     response = make_response(render_template(
@@ -267,11 +266,15 @@ def root():
     # elif "redirect_url" in current_token_info:
     #    return redirect(current_token_info["redirect_url"])
 
-    response = make_response(render_template("index.html",
-        current_token_info=current_token_info,
-        user=user,
-        error_list={} # No errors by default
-    ))
+    response = make_response(
+        render_template(
+            "index.html",
+            current_token_info=current_token_info,
+            user=user,
+            error_list={}  # No errors by default
+        )
+    )
+
     if "token" in request.cookies:
         if request.cookies["token"] == "NO_TOKEN":
             response.set_cookie('token', "")
@@ -327,13 +330,17 @@ def user_registration():
     is_registration_completed = False
     partner_groups = okta_util.search_groups(config.okta["partner_group_filter_prefix"], config.okta["group_query_limit"])
 
-    response = make_response(render_template("user_registration.html",
-        is_registration_completed=is_registration_completed,
-        partner_groups=partner_groups,
-        error_list={} # No errors by default
-    ))
+    response = make_response(
+        render_template(
+            "user_registration.html",
+            is_registration_completed=is_registration_completed,
+            partner_groups=partner_groups,
+            error_list={}  # No errors by default
+        )
+    )
 
     return response
+
 
 @app.route("/register", methods=["POST"])
 def register():
