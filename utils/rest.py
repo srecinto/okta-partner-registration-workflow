@@ -196,12 +196,25 @@ class OktaUtil:
 
         return self.execute_get(url, body)
 
+    def assign_user_to_group(self, user_id, group_id):
+        print "assign_user_to_group()"
+        url = "{host}/api/v1/groups/{group_id}/users/{user_id}".format(host=self.REST_HOST, group_id=group_id, user_id=user_id)
+        body = {}
+
+        return self.execute_put(url, body)
+
     def get_user_groups(self, user_id):
         print "get_user_groups()"
         url = "{host}/api/v1/users/{user_id}/groups".format(host=self.REST_HOST, user_id=user_id)
         body = {}
 
         return self.execute_get(url, body)
+
+    def create_group(self, group):
+        print "create_group()"
+        url = "{host}/api/v1/groups".format(host=self.REST_HOST)
+
+        return self.execute_post(url, group)
 
     def list_all_groups(self):
         print "get_user_groups()"
@@ -216,6 +229,15 @@ class OktaUtil:
             host=self.REST_HOST,
             group_name_prefix=group_name_prefix,
             limit=limit)
+        body = {}
+
+        return self.execute_get(url, body)
+
+    def get_group(self, group_id):
+        print "get_group()"
+        url = "{host}/api/v1/groups/{group_id}".format(
+            host=self.REST_HOST,
+            group_id=group_id)
         body = {}
 
         return self.execute_get(url, body)
@@ -236,9 +258,37 @@ class OktaUtil:
 
         return self.execute_get(url, body)
 
-    def create_user(self, user_data):
+    def find_users_by_login(self, login):
+        url = "{host}/api/v1/users?search=profile.login eq \"{login}\"".format(
+            host=self.REST_HOST,
+            login=login)
+        body = {}
+
+        return self.execute_get(url, body)
+
+    def find_all_users_by_id(self, user_ids):
+        results = {}
+        print "user_id count: {0}".format(len(user_ids))
+        if len(user_ids) > 0:
+            search_criteria = ""
+            or_appender = ""
+
+            for user_id in user_ids:
+                search_criteria = "{0}{1}id eq \"{2}\"".format(search_criteria, or_appender, user_id)
+                or_appender = " or "
+
+            url = "{host}/api/v1/users?search={search_criteria}".format(
+                host=self.REST_HOST,
+                search_criteria=search_criteria)
+            body = {}
+
+            results = self.execute_get(url, body)
+
+        return results
+
+    def create_user(self, user_data, activate_user=False):
         print "create_user()"
-        url = "{host}/api/v1/users?activate=false".format(host=self.REST_HOST)
+        url = "{host}/api/v1/users?activate={activate_user}".format(host=self.REST_HOST, activate_user=activate_user)
 
         return self.execute_post(url, user_data)
 
@@ -336,7 +386,7 @@ class OktaUtil:
         body = {}
         return self.execute_get(url, body)
 
-    def send_mail(self, subject, message, to):
+    def send_mail(self, subject, message, recipients):
         print "send_mail()"
         url = "https://api.sparkpost.com/api/v1/transmissions"
         headers = {
@@ -345,14 +395,14 @@ class OktaUtil:
         }
         body = {
             "options": {
-                "sandbox": True
+                "sandbox": False
             },
             "content": {
-                "from": "sandbox@sparkpostbox.com",
+                "from": "noreply@mail.mysterymashup.com",
                 "subject": subject,
-                "text": message
+                "html": message
             },
-            "recipients": [{"address": to}]
+            "recipients": recipients
         }
 
         return self.execute_post(url, body, headers=headers)
@@ -364,7 +414,10 @@ class OktaUtil:
         headers = self.reconcile_headers(headers)
 
         rest_response = requests.post(url, headers=headers, json=body)
-        response_json = rest_response.json()
+        try:
+            response_json = rest_response.json()
+        except:
+            response_json = {"status": "none"}
 
         # print json.dumps(response_json, indent=4, sort_keys=True)
         return response_json
@@ -376,7 +429,10 @@ class OktaUtil:
         headers = self.reconcile_headers(headers)
 
         rest_response = requests.put(url, headers=headers, json=body)
-        response_json = rest_response.json()
+        try:
+            response_json = rest_response.json()
+        except:
+            response_json = {"status": "none"}
 
         # print json.dumps(response_json, indent=4, sort_keys=True)
         return response_json
@@ -403,7 +459,10 @@ class OktaUtil:
         headers = self.reconcile_headers(headers)
 
         rest_response = requests.get(url, headers=headers, json=body)
-        response_json = rest_response.json()
+        try:
+            response_json = rest_response.json()
+        except:
+            response_json = {"status": "none"}
 
         # print json.dumps(response_json, indent=4, sort_keys=True)
         return response_json

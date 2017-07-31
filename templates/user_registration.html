@@ -13,20 +13,28 @@
         </div>
     </div>
     {% else %}
+    <script>
+        $(document).ready(function() {
+            $("#partner").on("change", function() {
+                $("#partnerName").val($("#partner option:selected").text());
+            })
+        });
+    </script>
     <form id='login-form' action="/register" method='post'>
         <h1>Partner Portal Registration</h1>
         {% for error in error_list.messages %}
             <div class="error">{{error.message}}</div>
         {% endfor %}
-        <input type="text" name="firstName" placeholder="First Name" required>
-        <input type="text" name="lastName" placeholder="Last Name" required>
-        <input type="text" name="email" placeholder="Email" required>
+        <input type="text" name="firstName" placeholder="First Name" value="{{form_data.firstName}}" required>
+        <input type="text" name="lastName" placeholder="Last Name" value="{{form_data.lastName}}" required>
+        <input type="text" name="email" placeholder="Email" value="{{form_data.email}}" required>
         <input type="password" name="password" placeholder="Password" required>
         <input type="password" name="confirmPassword" placeholder="confirm Password" required>
-        <select name="partner" required>
+        <input type="hidden" name="partnerName" id="partnerName" value="{{form_data.partnerName}}" />
+        <select name="partner" id="partner" required>
             <option value="">Choose Your Primary Partner</option>
             {% for group in partner_groups %}
-            <option value="{{group.id}}">{{group.profile.name}}</option>
+            <option value="{{group.id}}"{% if form_data.partner==group.id %}selected{% endif %}>{{group.profile.name}}</option>
             {% endfor %}
         </select>
         <button type='submit'>Register</button>
