@@ -1,0 +1,151 @@
+{% extends "_template.html" %}
+{% block title %}{{okta_config.app_title}}{% endblock %}
+
+{% block content %}
+<!-- ======== @Region: #content ======== -->
+    <div id="content">
+      <div class="row">
+        <div class="col-sm-6 col-sm-offset-3">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h3 class="panel-title">
+                <!--Sign Up-->
+                Partner Portal Registration
+              </h3>
+            </div>
+            <div class="panel-body">
+              {% if is_registration_completed %}
+              <div>
+                <div>Your registration has been submitted.  You will recieve an email with an activation link shortly.</div>
+                <div>
+                  <a href="/">Click to return to the home page</a>
+                </div>
+              </div>
+              {% else %}
+                {% for error in error_list.messages %}
+                  <div class="error"><h3>{{error.message}}</h3></div>
+                {% endfor %}
+              <form accept-charset="UTF-8" role="form" id='login-form' action="/register" method='post'>
+                <fieldset>
+                  <div class="form-group">
+                    <div class="input-group input-group-lg">
+                      <span class="input-group-addon"><i class="fa fa-fw fa-user"></i></span>
+                      <!--<input type="text" class="form-control" placeholder="Username">-->
+                      <input type="text" name="firstName" placeholder="First Name" value="{{form_data.firstName}}" class="form-control" required>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <div class="input-group input-group-lg">
+                      <span class="input-group-addon"><i class="fa fa-fw fa-user"></i></span>
+                      <!--<input type="text" class="form-control" placeholder="Username">-->
+                      <input type="text" name="lastName" placeholder="Last Name" value="{{form_data.lastName}}" class="form-control" required>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <div class="input-group input-group-lg">
+                      <span class="input-group-addon"><i class="fa fa-fw fa-envelope"></i></span>
+                      <!--<input type="text" class="form-control" placeholder="Email">-->
+                      <input type="text" name="email" placeholder="Email" value="{{form_data.email}}" class="form-control" required><br />
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <div class="input-group input-group-lg">
+                      <span class="input-group-addon"><i class="fa fa-fw fa-user"></i></span>
+                      <select name="role" id="role" class="form-control" required>
+                        <option value="">Choose the role for {{app_title}}</option>
+                        {% for role in roles_list %}
+                          <option value="{{role.name}}"{% if form_data.role==role.name %}selected{% endif %}>{{role.name}}</option>
+                        {% endfor %}
+                      </select><br />
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <div class="input-group input-group-lg">
+                      <span class="input-group-addon"><i class="fa fa-fw fa-car"></i></span>
+                      <input id="partner_search" name="partner_search" placeholder="{{okta_config.partner_portal_label}} - Zipcode" value="{{form_data.partner_search}}" class="form-control" required>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <div class="input-group input-group-lg">
+                      <span class="input-group-addon"><i class="fa fa-fw fa-lock"></i></span>
+                      <!--<input type="password" class="form-control" placeholder="Password">-->
+                      <input type="password" name="password" placeholder="Password" class="form-control" required>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <div class="input-group input-group-lg">
+                      <span class="input-group-addon"><i class="fa fa-fw fa-lock"></i></span>
+                      <input type="password" name="confirmPassword" placeholder="Confirm Password" class="form-control" required>
+                    </div>
+                  </div>
+                  <!--<div class="form-group">-->
+                  <!--  <div class="radio">-->
+                  <!--    <label>-->
+                  <!--        <input type="radio" name="optionsRadios" id="optionsRadios1" value="option1" checked>-->
+                  <!--        Free Account-->
+                  <!--      </label>-->
+                  <!--  </div>-->
+                  <!--  <div class="radio">-->
+                  <!--    <label>-->
+                  <!--        <input type="radio" name="optionsRadios" id="optionsRadios2" value="option2">-->
+                  <!--        Plus Account ($12/month)-->
+                  <!--      </label>-->
+                  <!--  </div>-->
+                  <!--  <div class="radio">-->
+                  <!--    <label>-->
+                  <!--        <input type="radio" name="optionsRadios" id="optionsRadios3" value="option3">-->
+                  <!--        Corporate Account ($100month)-->
+                  <!--      </label>-->
+                  <!--  </div>-->
+                  <!--</div>-->
+                  <!--<div class="checkbox">-->
+                  <!--  <label>-->
+                  <!--      <input name="remember" type="checkbox" value="Terms">-->
+                  <!--      I agree to the <a href="#">terms and conditions</a>.-->
+                  <!--    </label>-->
+                  <!--</div>-->
+                  <input class="btn btn-lg btn-primary btn-block" type="submit" value="Register">
+                </fieldset>
+                <input type="hidden" name="partnerName" id="partnerName" value="{{form_data.partnerName}}">
+                <input type="hidden" name="partner" id="partner" value="{{form_data.partner}}">
+              </form>
+              {% endif %}
+              <p class="m-b-0 m-t">Already signed up? <a href="/show_login">Login here</a>.</p>
+              <div class="credits">
+                <!--
+                      All the links in the footer should remain intact.
+                      You can delete the links only if you purchased the pro version.
+                      Licensing information: https://bootstrapmade.com/license/
+                      Purchase the pro version with working PHP/AJAX contact form: https://bootstrapmade.com/buy/?theme=Flexor
+                    -->
+                <a href="https://bootstrapmade.com/">Free Bootstrap Themes</a> by BootstrapMade.com
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- /row -->
+    </div>
+  </div>
+
+  <script>
+    $(document).ready(function() {
+      console.log("HEY THERE!");
+      $("#role").on("change", function() {
+        $("#role").val($("#role option:selected").text());
+      });
+
+      $("#partner_search").autocomplete({
+        source: "/get_partner_profile_info",
+        minLength: 2,
+        select: function(event, ui) {
+          console.log(ui);
+          event.preventDefault();
+          $("#partnerName").val(ui.item.name);
+          $("#partner_search").val(ui.item.label);
+          $("#partner").val(ui.item.id);
+        }
+      });
+    });
+  </script>
+{% endblock %}

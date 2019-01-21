@@ -242,6 +242,24 @@ class OktaUtil:
 
         return self.execute_get(url, body)
 
+    def get_group_users(self, group_id):
+        print "get_group_users()"
+        url = "{host}/api/v1/groups/{group_id}/users".format(
+            host=self.REST_HOST,
+            group_id=group_id)
+        body = {}
+
+        return self.execute_get(url, body)
+
+    def get_group_apps(self, group_id):
+        print "get_group_apps()"
+        url = "{host}/api/v1/groups/{group_id}/apps".format(
+            host=self.REST_HOST,
+            group_id=group_id)
+        body = {}
+
+        return self.execute_get(url, body)
+
     def get_curent_user(self, session_id):
         session_response = self.validate_session(session_id)
         url = "{host}/api/v1/users/{user_id}".format(host=self.REST_HOST, user_id=session_response["userId"])
@@ -254,6 +272,23 @@ class OktaUtil:
             host=self.REST_HOST,
             member_id=member_id,
             last_name=last_name)
+        body = {}
+
+        return self.execute_get(url, body)
+
+    def find_users_by_status(self, status):
+        url = "{host}/api/v1/users?search=status eq \"{status}\"".format(
+            host=self.REST_HOST,
+            status=status)
+        body = {}
+
+        return self.execute_get(url, body)
+
+    def find_users_by_attribute(self, attribute_name, attribute_value):
+        url = "{host}/api/v1/users?search=profile.{attribute_name} eq \"{attribute_value}\"".format(
+            host=self.REST_HOST,
+            attribute_name=attribute_name,
+            attribute_value=attribute_value)
         body = {}
 
         return self.execute_get(url, body)
@@ -330,20 +365,11 @@ class OktaUtil:
 
         return self.execute_post(url, body)
 
-    def update_user(self, user_id, first_name, last_name, email, phone, custom_account_links):
+    def update_user(self, user):
         print "update_user()"
-        url = "{host}/api/v1/users/{user_id}".format(host=self.REST_HOST, user_id=user_id)
-        body = {
-            "profile": {
-                "firstName": first_name,
-                "lastName": last_name,
-                "email": email,
-                "mobilePhone": phone,
-                "custom_account_links": custom_account_links.strip().split(',')
-            }
-        }
+        url = "{host}/api/v1/users/{user_id}".format(host=self.REST_HOST, user_id=user["id"])
 
-        return self.execute_post(url, body)
+        return self.execute_post(url, user)
 
     def deactivate_user(self, user_id):
         url = "{host}/api/v1/users/{user_id}/lifecycle/deactivate".format(host=self.REST_HOST, user_id=user_id)
@@ -383,6 +409,53 @@ class OktaUtil:
 
     def list_user_schema(self):
         url = "{host}/api/v1/meta/schemas/user/default".format(host=self.REST_HOST)
+        body = {}
+        return self.execute_get(url, body)
+
+    def list_all_applications(self):
+        url = "{host}/api/v1/apps".format(host=self.REST_HOST)
+        body = {}
+        return self.execute_get(url, body)
+
+    def get_application(self, app_id):
+        url = "{host}/api/v1/apps/{app_id}".format(host=self.REST_HOST, app_id=app_id)
+        body = {}
+        return self.execute_get(url, body)
+
+    def find_all_apps_by_id(self, app_ids):
+        results = {}
+        print "app_ids count: {0}".format(len(app_ids))
+        if len(app_ids) > 0:
+            search_criteria = ""
+            or_appender = ""
+
+            for app_id in app_ids:
+                search_criteria = "{0}{1}id eq \"{2}\"".format(search_criteria, or_appender, app_id)
+                or_appender = " or "
+
+            url = "{host}/api/v1/apps?search={search_criteria}".format(
+                host=self.REST_HOST,
+                search_criteria=search_criteria)
+            body = {}
+
+            results = self.execute_get(url, body)
+
+        return results
+
+    def list_application_groups(self, app_id):
+        url = "{host}/api/v1/apps/{app_id}/groups".format(host=self.REST_HOST, app_id=app_id)
+        body = {}
+        return self.execute_get(url, body)
+
+    def assign_user_to_app(self, user_id, app_id):
+        print "assign_user_to_app()"
+        url = "{host}/api/v1/apps/{app_id}/users/{user_id}".format(host=self.REST_HOST, app_id=app_id, user_id=user_id)
+        body = {}
+
+        return self.execute_put(url, body)
+
+    def list_user_applications(self, user_id):
+        url = "{host}/api/v1/apps?filter=user.id eq \"{user_id}\"&expand=user/{user_id}".format(host=self.REST_HOST, user_id=user_id)
         body = {}
         return self.execute_get(url, body)
 

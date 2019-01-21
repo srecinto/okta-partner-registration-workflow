@@ -1,0 +1,74 @@
+{% extends "_app_template.html" %}
+{% block main_content %}
+      <div class="col-md-9 col-md-push-3">
+        <div class="page-header">
+          <h1>
+            Request User Access
+            <small>Request user access to specific {{okta_config.partner_portal_label}}</small>
+          </h1>
+        </div>
+        <div class="block block-border-bottom-grey block-pd-sm">
+          <div class="row">
+            <div class="ui-widget">
+              <input id="partnerAdmin" type="hidden" />
+              <input id="partner" type="hidden" />
+              <input id="partnerName" type="hidden" />
+              <input id="partner_search" name="partner_search" placeholder="{{okta_config.partner_portal_label}} - Zipcode" required>
+            </div>
+            <div>&nbsp;</div>
+            <div>
+              <input id="request_partner_user_access"  class="btn btn-lg btn-primary" type="button" value="Request Access" />
+            </div>
+          </div>
+        </div>
+      </div>
+      <script>
+        $(document).ready(function() {
+          $( "#partner_search" ).autocomplete({
+            source: "/get_partner_profile_info",
+            minLength: 2,
+            select: function( event, ui ) {
+                console.log(ui);
+                event.preventDefault();
+                $("#partnerName").val(ui.item.name);
+                $("#partner_search").val(ui.item.label);
+                $("#partner").val(ui.item.id);
+                $("#partnerAdmin").val(ui.item.admin_id);
+            }
+          });
+
+          $("#request_partner_user_access").on("click", function() {
+              partnerAccessRequest(
+                  "{{okta_config.app_host}}/user_access_request",
+                  $("#partner").val(),
+                  data => {
+                      console.log(data);
+                      alert("Your request is being processed.  Please check your email for a status update");
+                  }
+              );
+          });
+
+          function partnerAccessRequest(requestUrl, group_id, callback) {
+            var json_body = {
+                "user_id": "{{user.id}}",
+                "group_id": group_id,
+                "partner_admin_group_id": $("#partnerAdmin").val()
+            }
+
+            var json_body_str = JSON.stringify(json_body);
+            console.log(json_body_str);
+
+            $.ajax({
+                url: requestUrl,
+                type: "POST",
+                contentType: "application/json; charset=utf-8",
+                data: json_body_str,
+                xhrFields: { withCredentials: true },
+                crossDomain: true,
+                success: callback
+            });
+          }
+
+        });
+      </script>
+{% endblock %}

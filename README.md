@@ -32,6 +32,7 @@ Or run them individually
 **Web Framework - flask**
 
 `pip install flask`
+`pip install flask_login`
 
 **HTTP Framework - Update requests**
 

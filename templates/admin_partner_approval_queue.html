@@ -1,12 +1,11 @@
-{% extends "_template.html" %}
-{% block head %}
-{{ super() }}
-{% endblock %}
+{% extends "_admin_template.html" %}
+{% block head %}{% endblock %}
 {% block title %}Admin Partner Portal - User Approval Queue{% endblock %}
+
 {% block content %}
 <div>
     <div>
-        Approval Queue for {{group.profile.name}}
+        <h1>User Approval Queue for {{user.profile.current_group.profile.name}}</h1>
     </div>
     <table border="1" cellpadding="0" cellspacing="0">
         <tr>
@@ -14,15 +13,15 @@
             <th>Email</th>
             <th>Actions</th>
         </tr>
-    {% for user in user_list %}
+        {% for u in user_list %}
         <tr>
-            <td>{{user.profile.firstName}} {{user.profile.lastName}}</td>
-            <td>{{user.profile.email}}</td>
+            <td>{{u.profile.firstName}} {{u.profile.lastName}}</td>
+            <td>{{u.profile.email}}</td>
             <td>
-                <a href="#">Deny</a> | <a href="#">Approve</a>
+                <a href="{{okta_config.app_host}}/admin/deny_partner_access/{{group.id}}/{{u.id}}">Deny</a> | <a href="{{okta_config.app_host}}/admin/approve_partner_access/{{group.id}}/{{u.id}}">Approve</a>
             </td>
         </tr>
-    {% endfor %}
+        {% endfor %}
     </table>
 </div>
 {% endblock %}

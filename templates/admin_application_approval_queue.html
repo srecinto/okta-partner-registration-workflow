@@ -1,0 +1,28 @@
+{% extends "_admin_template.html" %}
+{% block head %}{% endblock %}
+{% block title %}Admin Partner Portal - Application Approval Queue{% endblock %}
+{% block content %}
+<div>
+    <div>
+        <h1>Application Approval Queue for {{user.profile.current_group.profile.name}}</h1>
+    </div>
+    <table border="1" cellpadding="0" cellspacing="0">
+        <tr>
+            <th>Application</th>
+            <th>Requestor</th>
+            <th>Email</th>
+            <th>Actions</th>
+        </tr>
+    {% for app in app_list %}
+        <tr>
+            <td>{{app.label}}</td>
+            <td>{{app.user.profile.firstName}} {{app.user.profile.lastName}}</td>
+            <td>{{app.user.profile.email}}</td>
+            <td>
+                <a href="{{okta_config.app_host}}/admin/deny_application_access/{{group.id}}/{{app.user.id}}/{{app.id}}">Deny</a> | <a href="{{okta_config.app_host}}/admin/approve_application_access/{{group.id}}/{{app.user.id}}/{{app.id}}">Approve</a>
+            </td>
+        </tr>
+    {% endfor %}
+    </table>
+</div>
+{% endblock %}

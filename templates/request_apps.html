@@ -1,0 +1,69 @@
+{% extends "_app_template.html" %}
+{% block main_content %}
+      <div class="col-md-9 col-md-push-3">
+        <div class="page-header">
+          <h1>
+            Request Application Access
+            <small>Available Apps</small>
+          </h1>
+        </div>
+        <div class="block block-border-bottom-grey block-pd-sm">
+          <div class="row">
+            {% if user.profile.current_group %}
+            <div>
+              <select id="unassigned_application_list" multiple>
+              {% for app in available_apps %}
+                <option value="{{app.id}}">{{app.label}}</option>
+              {% endfor %}
+              </select>
+            </div>
+            <div>
+              <input id="requestAppAccess" class="btn btn-lg btn-primary" type="button" value="Request Applications" />
+            </div>
+            {% else %}
+            <div>Pending Primary {{okta_config.partner_portal_label}} Approval</div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% if user.profile.current_group %}
+      <script>
+        $(document).ready(function() {
+          $("#requestAppAccess").on("click", function() {
+                //console.log($("#assigned_application_list").val());
+                if($("#unassigned_application_list").val() == null) {
+                  alert("You must select atleast one application");
+                } else {
+
+                  var json_body = {
+                      "user_id": "{{user.id}}",
+                      "group_id": "{{user.profile.current_group.id}}",
+                      "app_ids": $("#unassigned_application_list").val()
+                  }
+
+                  var json_body_str = JSON.stringify(json_body);
+                  console.log(json_body_str);
+
+                  $.ajax({
+                      url: "{{okta_config.app_host}}/application_request",
+                      type: "POST",
+                      contentType: "application/json; charset=utf-8",
+                      data: json_body_str,
+                      xhrFields: { withCredentials: true },
+                      crossDomain: true,
+                      success: data => {
+                          console.log(data);
+                          if(data == "SUCCESS"){
+                              alert("Your request is being processed.  Please check your email for a status update");
+                              $("#request_application_access_section").hide();
+                          }
+                      }
+                  });
+                }
+
+            });
+
+        });
+      </script>
+      {% endif %}
+{% endblock %}

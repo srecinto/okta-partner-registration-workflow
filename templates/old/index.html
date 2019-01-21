@@ -1,0 +1,321 @@
+{% extends "_template.html" %}
+{% block head %}
+{{ super() }}
+<!-- Core widget js and css -->
+<script src="https://ok1static.oktacdn.com/assets/js/sdk/okta-signin-widget/1.9.0/js/okta-sign-in.min.js" type="text/javascript"></script>
+<link href="https://ok1static.oktacdn.com/assets/js/sdk/okta-signin-widget/1.9.0/css/okta-sign-in.min.css" type="text/css" rel="stylesheet">
+<!-- Customizable css theme options. Link your own customized copy of this file or override styles in-line -->
+<link href="https://ok1static.oktacdn.com/assets/js/sdk/okta-signin-widget/1.9.0/css/okta-theme.css" type="text/css" rel="stylesheet">
+{% endblock %}
+{% block title %}{{okta_config.app_title}}{% endblock %}
+{% block content %}
+    {% if current_token_info.active %}
+    <script>
+        var availableAppList = [];
+
+        $(document).ready(function() {
+            $( "#partner_search" ).autocomplete({
+                source: "/get_partner_profile_info",
+                minLength: 2,
+                select: function( event, ui ) {
+                    console.log(ui);
+                    event.preventDefault();
+                    $("#partnerName").val(ui.item.name);
+                    $("#partner_search").val(ui.item.label);
+                    $("#partner").val(ui.item.id);
+                    $("#partnerAdmin").val(ui.item.admin_id);
+
+                    $.get({
+                        url: "{{okta_config.app_host}}/is_user_in_group/{{user.id}}/" + ui.item.id,
+                        xhrFields: { withCredentials: true },
+                        crossDomain: true,
+                        success: data => {
+                            console.log(data);
+                            results = JSON.parse(data);
+                            if(!results.is_user_in_group) {
+                                $("#request_partner_user_access_section").show();
+                            } else {
+                                for(appIndex in availableAppList) {
+                                    app = availableAppList[appIndex];
+                                    var option = new Option(app.label, app.id);
+                                    $("#unassigned_application_list").append(option);
+                                }
+                                $("#request_application_access_section").show();
+                            }
+                        }
+                    });
+
+                    $.get({
+                        url: "{{okta_config.app_host}}/is_user_in_group/{{user.id}}/" + ui.item.admin_id,
+                        xhrFields: { withCredentials: true },
+                        crossDomain: true,
+                        success: data => {
+                            console.log(data);
+                            results = JSON.parse(data);
+                            if(!results.is_user_in_group) {
+                                $("#request_partner_admin_access_section").show();
+                            } else {
+                                $("#request_partner_admin_access_section").hide();
+                            }
+                        }
+                    });
+                }
+            });
+
+            $("#request_partner_user_access").on("click", function() {
+                partnerAccessRequest(
+                    "{{okta_config.app_host}}/user_access_request",
+                    $("#partner").val(),
+                    data => {
+                        console.log(data);
+                        alert("Your request is being processed.  Please check your email for a status update");
+                        $("#request_partner_user_access_section").hide();
+                    }
+                );
+            });
+
+            $("#addSelectedApplications").on("click", function() {
+                options = $("#unassigned_application_list option:selected").remove();
+                $("#assigned_application_list").append(options);
+            });
+
+            $("#requestAppAccess").on("click", function() {
+                //console.log($("#assigned_application_list").val());
+                var json_body = {
+                    "user_id": "{{user.id}}",
+                    "group_id": $("#partner").val(),
+                    "app_ids": $("#assigned_application_list").val()
+                }
+
+                var json_body_str = JSON.stringify(json_body);
+                console.log(json_body_str);
+
+                $.ajax({
+                    url: "{{okta_config.app_host}}/application_request",
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    data: json_body_str,
+                    xhrFields: { withCredentials: true },
+                    crossDomain: true,
+                    success: data => {
+                        console.log(data);
+                        if(data == "SUCCESS"){
+                            alert("Your request is being processed.  Please check your email for a status update");
+                            $("#request_application_access_section").hide();
+                        }
+                    }
+                });
+
+            });
+
+            $("#request_partner_admin_access").on("click", function() {
+                partnerAccessRequest(
+                    "{{okta_config.app_host}}/partner_admin_request",
+                    $("#partnerAdmin").val(),
+                    data => {
+                        console.log(data);
+                        alert("Your request is being processed.  Please check your email for a status update");
+                        $("#request_partner_admin_access_section").hide();
+                    }
+                );
+            });
+
+            $("#currentGroupSelector").on("change", function() {
+                $.get({
+                    url: "{{okta_config.app_host}}/change_group/" + $("#currentGroupSelector").val(),
+                    xhrFields: { withCredentials: true },
+                    crossDomain: true,
+                    success: data => {
+                        console.log(data);
+                        results = JSON.parse(data);
+                        if(results.success) {
+                            location.reload();
+                        }
+                    }
+                });
+            });
+
+            $.get({
+                url: "{{okta_config.app_host}}/list_available_applications/{{user.id}}",
+                xhrFields: { withCredentials: true },
+                crossDomain: true,
+                success: data => {
+                    console.log(data);
+                    results = JSON.parse(data);
+
+                    for(resultIndex in results) {
+                        app = results[resultIndex];
+                        var option = new Option(app.label, app.id);
+
+                        if(app.status == "ASSIGNED"){
+                            $("#appList").append("<div>* <a href='#'>" + app.label + "</a></div>")
+                        } else {
+                            availableAppList.push(app);
+                        }
+                    }
+                }
+            });
+
+            $("#request_partner_user_access_section").hide();
+            $("#request_partner_admin_access_section").hide();
+            $("#request_application_access_section").hide();
+
+        });
+
+        function partnerAccessRequest(requestUrl, group_id, callback) {
+            var json_body = {
+                "user_id": "{{user.id}}",
+                "group_id": group_id,
+                "partner_admin_group_id": $("#partnerAdmin").val()
+            }
+
+            var json_body_str = JSON.stringify(json_body);
+            console.log(json_body_str);
+
+            $.ajax({
+                url: requestUrl,
+                type: "POST",
+                contentType: "application/json; charset=utf-8",
+                data: json_body_str,
+                xhrFields: { withCredentials: true },
+                crossDomain: true,
+                success: callback
+            });
+        }
+    </script>
+    <div>
+        <h1>Welcome {{user.profile.firstName}} {{user.profile.lastName}}</h1>
+        <div>
+            {% if current_group.profile %}
+            <div>You are currently in the {{okta_config.partner_portal_label}}: </div>
+            <div>
+                <select id="currentGroupSelector">
+                    {% for group in user_groups %}
+                    <option value="{{group.id}}" {% if current_group.id==group.id  %}selected{% endif %}>{{group.profile.name}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% else %}
+            <div>You are not currently approved for any {{okta_config.partner_portal_label}}</div>
+            {% endif %}
+            {% if is_admin %}
+            <div>
+                <a href="{{okta_config.app_host}}/admin/">Admin Menu</a>
+            </div>
+            {% endif %}
+        </div>
+        <div>You are now logged in</div>
+        <div>My App List: </div>
+        <div id="appList">
+
+        </div>
+        <div><a href="/logout">Logout</a></div>
+        <div>&nbsp;</div>
+        <div>
+            <div>Request Access to {{okta_config.partner_portal_label}}</div>
+            <div class="ui-widget">
+                <input id="partner_search" name="partner_search" placeholder="{{okta_config.partner_portal_label}} - Zipcode" value="{{form_data.partnerName}}" required>
+            </div>
+            <div>&nbsp;</div>
+            <input id="partnerAdmin" type="hidden" />
+            <input id="partner" type="hidden" />
+            <input id="partnerName" type="hidden" />
+            <div id="request_partner_user_access_section">
+                <input id="request_partner_user_access" type="button" value="Request Access" />
+            </div>
+            <div id="request_partner_admin_access_section">
+                <input id="request_partner_admin_access" type="button" value="Request ADMIN Access" />
+            </div>
+            <div id="request_application_access_section">
+                <table>
+                    <tr>
+                        <th>Available Apps</th>
+                        <th>&nbsp;</th>
+                        <th>Assigned Apps</th>
+                    </tr>
+                    <tr>
+                        <td>
+                            <select id="unassigned_application_list" multiple></select>
+                        </td>
+                        <td><input id="addSelectedApplications" type="button" value="Add Selected Apps" /></td>
+                        <td>
+                            <select id="assigned_application_list" name="assigned_application_list" multiple></select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="3">
+                            <input id="requestAppAccess" type="button" value="Request Applications" />
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <script type="text/javascript" src="{{okta_config.org_host}}/api/v1/sessions/me"></script>
+    <script type="text/javascript">
+        //<![CDATA[
+        $(document).ready(function() {
+
+            $.get({
+                url: "{{okta_config.org_host}}/api/v1/sessions/me",
+                xhrFields: { withCredentials: true },
+                crossDomain: true,
+                success: data => {
+                    console.log("data: %s", JSON.stringify(data));
+                    var redirectUrl = "{{current_token_info.redirect_url|safe}}";
+                    console.log("redirect_url: %s", redirectUrl)
+                    if(data.id) {
+                        location.href=redirectUrl;
+                    }
+                }
+            });
+
+            var orgUrl   = "{{okta_config.org_host}}";
+            var redirect = "{{okta_config.redirect_uri}}";
+            var oktaSignIn = new OktaSignIn({
+                baseUrl: orgUrl,
+                logo: "/img/logo.png",
+                // OpenID Connect options
+                clientId: "{{okta_config.oidc_client_id}}",
+                redirectUri: redirect,
+                authScheme: "OAUTH2",
+                authParams: {
+                    display: "page",
+                    responseType: "code",
+                    responseMode: "form_post",
+                    issuer: "{{okta_config.org_host}}/oauth2/{{okta_config.auth_server_id}}",
+                    authorizeUrl: "{{okta_config.org_host}}/oauth2/{{okta_config.auth_server_id}}/v1/authorize",
+                    scopes: [
+                        "openid",
+                        "profile"
+                    ]
+                },
+                helpLinks: {
+                    custom: [
+                        {
+                            text: "Register",
+                            href: "/user_registration"
+                        }
+                    ]
+                }
+            });
+
+            oktaSignIn.renderEl(
+                { el: '#okta-login-container' },
+                function (res) {
+                    if (res.status === 'SUCCESS') {
+                        console.log("data: %s", JSON.stringify(res));
+                    }
+                }
+            );
+
+        });
+        //]]>
+    </script>
+    <div>
+        <h1>{{okta_config.app_title}}</h1>
+        <div id="okta-login-container"></div>
+    </div>
+    {% endif %}
+{% endblock %}
