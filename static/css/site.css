@@ -1,0 +1,11 @@
+
+
+.error {
+  color: red;
+  font-weight: bold;
+}
+
+/* JQuery UI overrides */
+.ui-autocomplete-input {
+  width: 400px !important;
+}
