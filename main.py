@@ -1640,5 +1640,75 @@ MAIN ###########################################################################
 """
 if __name__ == "__main__":
     # This is to run on c9.io.. you may need to change or make your own runner
+
+    if "ORG_HOST" in os.environ:
+        config.okta["org_host"] = os.environ["ORG_HOST"]
+
+    if "API_TOKEN" in os.environ:
+        config.okta["api_token"] = os.environ["API_TOKEN"]
+
+    if "OIDC_CLIENT_ID" in os.environ:
+        config.okta["oidc_client_id"] = os.environ["OIDC_CLIENT_ID"]
+
+    if "OIDC_CLIENT_SECRET" in os.environ:
+        config.okta["oidc_client_secret"] = os.environ["OIDC_CLIENT_SECRET"]
+
+    if "REDIRECT_URI" in os.environ:
+        config.okta["redirect_uri"] = os.environ["REDIRECT_URI"]
+
+    if "APP_HOST" in os.environ:
+        config.okta["app_host"] = os.environ["APP_HOST"]
+
+    if "POST_OIDC_REDIRECT" in os.environ:
+        config.okta["post_oidc_redirect"] = os.environ["POST_OIDC_REDIRECT"]
+
+    if "AUTH_SERVER_ID" in os.environ:
+        config.okta["auth_server_id"] = os.environ["AUTH_SERVER_ID"]
+
+    if "DB_FILE_NAME" in os.environ:
+        config.okta["db_file_name"] = os.environ["DB_FILE_NAME"]
+
+    if "SPARK_POST_API_KEY" in os.environ:
+        config.okta["spark_post_api_key"] = os.environ["SPARK_POST_API_KEY"]
+
+    if "PARTNER_GROUP_FILTER_PREFIX" in os.environ:
+        config.okta["partner_group_filter_prefix"] = os.environ["PARTNER_GROUP_FILTER_PREFIX"]
+
+    if "PARTNER_GROUP_FILTER_SUFFIX" in os.environ:
+        config.okta["partner_group_filter_suffix"] = os.environ["PARTNER_GROUP_FILTER_SUFFIX"]
+
+    if "PARTNER_PORTAL_LABEL" in os.environ:
+        config.okta["partner_portal_label"] = os.environ["PARTNER_PORTAL_LABEL"]
+
+    if "GROUP_QUERY_LIMIT" in os.environ:
+        config.okta["group_query_limit"] = os.environ["GROUP_QUERY_LIMIT"]
+
+    if "APP_OKTA_GROUP_ID" in os.environ:
+        config.okta["app_okta_group_id"] = os.environ["APP_OKTA_GROUP_ID"]
+
+    if "APP_TITLE" in os.environ:
+        config.okta["app_title"] = os.environ["APP_TITLE"]
+
+    if "APP_LOGO" in os.environ:
+        config.okta["app_logo"] = os.environ["APP_LOGO"]
+
+    if "ADMIN_OKTA_GROUP_ID" in os.environ:
+        config.okta["admin_okta_group_id"] = os.environ["ADMIN_OKTA_GROUP_ID"]
+
+    if "ADMIN_OKTA_GROUP_NAME" in os.environ:
+        config.okta["admin_okta_group_name"] = os.environ["ADMIN_OKTA_GROUP_NAME"]
+
+    if "USER_CURRENT_GROUP_MAPPING" in os.environ:
+        config.okta["user_current_group_mapping"] = os.environ["USER_CURRENT_GROUP_MAPPING"]
+
+    if "USER_CURRENT_GROUP_DESC_MAPPING" in os.environ:
+        config.okta["user_current_group_desc_mapping"] = os.environ["USER_CURRENT_GROUP_DESC_MAPPING"]
+
+    if "USER_GROUP_ACCESS_LIST" in os.environ:
+        config.okta["user_group_access_list"] = os.environ["USER_GROUP_ACCESS_LIST"]
+
+    if "USER_CURRENT_GROUP_DESC_MAPPING_PREFIX" in os.environ:
+        config.okta["user_current_group_desc_mapping_prefix"] = os.environ["USER_CURRENT_GROUP_DESC_MAPPING_PREFIX"]
+
     print "okta_config: {0}".format(config.okta)
     app.run(host=os.getenv("IP", "0.0.0.0"), port=int(os.getenv("PORT", 8080)))
