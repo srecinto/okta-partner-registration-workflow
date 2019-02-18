@@ -8,7 +8,7 @@ okta = {
     "post_oidc_redirect": "https://<My App URI>",                       # Final Landing page of the app after successful login
     "auth_server_id": "<Okta API AM Auth Server Id>",                   # Okta Auth Server Id
     "db_file_name": "partner_portal.db",                                # Name of the DB file for SQL Lite
-    "spark_post_api_key": "<Spark Post API Key>",                       # Spark Post API Key
+    "spark_post_api_key": "<Spark Post API Key>",                       # Sparkpost API Key
     "partner_group_filter_prefix": "dlr_",                              # Group Filter in Okta for dealer groups that start with "dlr_"
     "partner_group_filter_suffix": " - Admins",                         # Group Filter in Okta for dealer group admins
     "partner_portal_label": "Dealer Portal",                            # Main Label
