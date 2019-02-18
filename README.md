@@ -69,6 +69,37 @@ Note that any locally persisted data will get wiped out periodically due to the 
 
 
 ## Okta Configuration Instructions
+* Create a Web OIDC Application in Okta
+* Create and API Token In Okta
+* Create an API AM Auth Server in Okta
+* Add the following fields in the global user profile
+`primary_dlr` Type: String Label "Primary Dealership" The default dealership that always gets set to upon login
+
+`current_dlr` Type: String Label "Current Dealership" The current dealership selected on the dropdown
+
+`dlr_list` Type: String Label "Dealer List" Use for list of dealershipt the user has been assigned to
+
+`current_pdn` Type: String Label "Current PDN" Used to get the current dealership PDN
+
+* Add the following fields in the claims information on Auth Server
+`dlr_list` user.dlr_list
+
+`current_dlr` user.current_dlr
+
+`email` user.email
+
+`lastName` user.lastName
+
+`primary_dlr` user.primary_dlr
+
+`firstName` user.firstName
+
+`groups` groups: matches regex .*
+
+`admin_group` groups: equals Dealer Admin Approval Group
+
+* Add Heroku Application URI as redirect in Okta OIDC Application
+* Add Heroku Application URI to CORS/REdirect in Okta API security
 
 
 ## Heroku Configuration Instructions
