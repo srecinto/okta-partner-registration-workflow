@@ -38,4 +38,6 @@ create table role (
 insert into role values ("USER");
 insert into role values ("ADMIN");
 
+insert into partner_profile values ("Jame Davis Toyota", "60626");
+insert into partner_profile values ("Jeremy Smith Chevy", "60651");
 
