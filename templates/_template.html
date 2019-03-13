@@ -44,17 +44,23 @@
   <link href="css/style.css" rel="stylesheet">
 
   <!--Your custom colour override - predefined colours are: colour-blue.css, colour-green.css, colour-lavender.css, orange is default-->
-  <link href="css/color-ally.css" id="colour-scheme" rel="stylesheet">
+  <link href="css/{{okta_config.app_theme_css}}" id="colour-scheme" rel="stylesheet">
   <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
   <style>
     .navbar-brand {
-      background: url(../img/{{okta_config.app_logo}}) left top no-repeat !important;
+      background: url({{okta_config.app_logo}}) left top no-repeat !important;
+      background-size: 140px !important;
+
+    }
+
+    .buildings {
+      background-image: url({{okta_config.app_bg_image}});
     }
 
     .auth-container {
       margin: 45px auto 8px !important;
     }
-
+/*
     .o-form-head {
       color: #3e0639 !important;
     }
@@ -67,7 +73,7 @@
       background-color: #3e0639 !important;
       color: #fff;
     }
-
+*/
     select {
       color: #000000;
       width: 200px;
@@ -193,7 +199,7 @@
               <!--navbar-branding/logo - hidden image tag & site name so things like Facebook to pick up, actual logo set via CSS for flexibility -->
               <a class="navbar-brand" href="/" title="Home">
                 <h1 class="hidden">
-                  <img src="img/{{okta_config.app_logo}}" alt="{{okta_config.app_title}} Logo"> {{okta_config.app_title}}
+                  <img src="{{okta_config.app_logo}}" alt="{{okta_config.app_title}} Logo"> {{okta_config.app_title}}
                 </h1>
               </a>
               <div class="navbar-slogan">

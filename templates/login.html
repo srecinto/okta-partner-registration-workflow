@@ -55,7 +55,7 @@
                   var redirect = "{{okta_config.redirect_uri}}";
                   var oktaSignIn = new OktaSignIn({
                     baseUrl: orgUrl,
-                    logo: "/img/{{okta_config.app_logo}}",
+                    logo: "{{okta_config.app_logo}}",
                     // OpenID Connect options
                     clientId: "{{okta_config.oidc_client_id}}",
                     redirectUri: redirect,
@@ -75,7 +75,8 @@
                       multiOptionalFactorEnroll: true,
                       smsRecovery: true,
                       callRecovery: true,
-                      //deviceFingerprinting: true
+                      deviceFingerprinting: true,
+                      idpDiscovery: true
                     },
                     helpLinks: {
                       custom: [{
