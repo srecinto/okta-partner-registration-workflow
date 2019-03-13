@@ -118,7 +118,9 @@ Note that any locally persisted data will get wiped out periodically due to the 
 
 `APP_HOST` Base URL of the application eg "https://[My App URI]"
 
-`APP_LOGO` logo reference eg "logo-lavender.png"
+`APP_LOGO` logo reference eg "/img/logo-lavender.png" all images will be rendered at 140px width
+
+`APP_THEME_CSS` Your custom colour override - predefined colours are: colour-blue.css, colour-green.css, colour-lavender.css, orange is default so leave blank for default
 
 `APP_OKTA_GROUP_ID` Okta Group ID for the general Dealer Portal App access
 
