@@ -1,4 +1,4 @@
-{% extends "_template.html" %}
+{% extends "_template_brite.html" %}
 {% block title %}{{okta_config.app_title}}{% endblock %}
 
 {% block login_widget_head %}
@@ -76,7 +76,7 @@
                       smsRecovery: true,
                       callRecovery: true,
                       deviceFingerprinting: true,
-                      idpDiscovery: true
+                      //idpDiscovery: true
                     },
                     helpLinks: {
                       custom: [{
