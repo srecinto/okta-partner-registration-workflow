@@ -16,6 +16,7 @@ okta = {
     "app_okta_group_id": "<Okta Dealer Portal General Access Group>",   # Okta Group ID for the general APP access
     "app_title": "Dealer Partner Portal",                               # App label for browser and sub pages
     "app_logo": "logo-lavender.png",                                    # logo reference
+    "app_favicon": "/img/icons/favicon.ico",                            # Favicon path
     "app_theme_css": "colour-lavender.css",                             # Your custom colour override - predefined colours are: colour-blue.css, colour-green.css, colour-lavender.css, orange is default so leave blank for default
     "app_bg_image": "/img/backgrounds/buildings.png",                   # BG image log
     "admin_okta_group_id": "<Okta Portal Admin Group Id>",              # Okta Group ID for the Super Admin role

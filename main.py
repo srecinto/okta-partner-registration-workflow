@@ -1716,5 +1716,8 @@ if __name__ == "__main__":
     if "APP_BG_IMAGE" in os.environ:
         config.okta["app_bg_image"] = os.environ["APP_BG_IMAGE"]
 
+    if "APP_FAVICON" in os.environ:
+        config.okta["app_favicon"] = os.environ["APP_FAVICON"]
+
     print "okta_config: {0}".format(config.okta)
     app.run(host=os.getenv("IP", "0.0.0.0"), port=int(os.getenv("PORT", 8080)))
